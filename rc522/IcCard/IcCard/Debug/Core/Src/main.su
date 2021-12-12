@@ -1,0 +1,4 @@
+main.c:62:6:IC_test	64	static
+main.c:104:5:main	8	static
+main.c:153:6:SystemClock_Config	72	static
+main.c:195:6:Error_Handler	4	static

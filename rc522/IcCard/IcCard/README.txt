@@ -1,0 +1,6 @@
+引脚接线
+	SDA  	PA4
+	SCK 	PA5
+	MOSI	PA7
+	MISO	PA6
+	RST	PB0

@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "RC522.H": "cpp",
+        "PIN_DEF.H": "cpp"
+    }
+}
