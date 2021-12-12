@@ -100,10 +100,9 @@ int main(void) {
   RC522_PcdAntennaOff();
   /*Open the antenna*/
   RC522_PcdAntennaOn();
-  //选择工作方式
-  // M500PcdConfigISOType('A');
-  printf(
-      "RFID-MFRC522 TEST\r\nFindCard Starting ...\r\n"); //测试引脚初始化完�????
+
+  printf("RFID-MFRC522 TEST\r\nFindCard Starting ...\r\n"); /*Test pin
+                                                               initialization*/
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN WHILE */
