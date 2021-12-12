@@ -93,14 +93,12 @@ int main(void) {
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("The USART Is Ok!!!\r\n");
-  // HAL_GPIO_WritePin(SPI_CS_GPIO_Port, SPI_CS_Pin, GPIO_PIN_RESET);
-  // SPI1_ReadWriteByte(0xaa); //启动传输
-  // HAL_GPIO_WritePin(SPI_CS_GPIO_Port, SPI_CS_Pin, GPIO_PIN_SET);
-  //初始�???????
+
+  /*RC522 initialization*/
   RC522_PcdReset();
-  //关闭天线
+  /*Close the antenna*/
   RC522_PcdAntennaOff();
-  //�???????启天�???????
+  /*Open the antenna*/
   RC522_PcdAntennaOn();
   //选择工作方式
   // M500PcdConfigISOType('A');
@@ -108,15 +106,11 @@ int main(void) {
       "RFID-MFRC522 TEST\r\nFindCard Starting ...\r\n"); //测试引脚初始化完�????
   /* USER CODE END 2 */
 
-  /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    // ReaderCard();
-    // printf("\r\n");
-    // HAL_Delay(5000);
     uint8_t Temp[4] = {0};
     if (RC522_PcdRequest(0x52, Temp) == MI_OK) {
       if (Temp[0] == 0x04 && Temp[1] == 0x00)
@@ -186,16 +180,15 @@ void ReaderCard(void) {
   // uint8_t temp_value;
   while (1) {
     /*寻卡*/
-    if ((RC522_PcdRequest(PICC_REQALL, Temp)) == MI_OK) {
-      printf("寻卡成功\n");
-      /*若失败再次寻�????*/
+    // if ((RC522_PcdRequest(PICC_REQALL, Temp)) == MI_OK) {
+    //   printf("寻卡成功\n");
+    //   /*若失败再次寻�????*/
 
-      // ucStatusReturn =
-      //     RC522_PcdRequest(PICC_REQALL, ucArray_ID); // PICC_REQALL
-      //     PICC_REQIDL
-    } else {
-      printf("寻卡失败\n");
-    }
+    //   ucStatusReturn = RC522_PcdRequest(PICC_REQALL, ucArray_ID); //
+    //   PICC_REQALL PICC_REQIDL
+    // } else {
+    //   printf("寻卡失败\n");
+    // }
 
     // if (ucStatusReturn == MI_OK) {
     //   // printf ( "寻卡成功\n" );
