@@ -1,0 +1,9 @@
+RingBuffer.h:95:24:RingBuffer_Size	16	static
+RingBuffer.h:105:24:RingBuffer_Len	16	static
+RingBuffer.h:115:24:RingBuffer_Avail	24	static
+RingBuffer.c:68:13:RingBuffer_Malloc	24	static
+RingBuffer.c:105:6:RingBuffer_Free	16	static
+RingBuffer.c:121:10:RingBuffer_In	32	static
+RingBuffer.c:146:10:RingBuffer_Out	32	static
+RingBuffer.c:169:13:is_power_of_2	16	static
+RingBuffer.c:179:17:roundup_pow_of_two	24	static

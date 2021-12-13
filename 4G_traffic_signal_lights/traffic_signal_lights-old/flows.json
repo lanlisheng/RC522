@@ -1,0 +1,1388 @@
+[
+    {
+        "id": "8381c865.236028",
+        "type": "subflow",
+        "name": "Single value",
+        "info": "The 'single value' subflow allows to :\r\n * Filter Data to extract only one variable after the \"processing node\" step .\r\n * Modify the message to fit with standard widgets such as gauges.\r\n * Limit the number of messages to a maximum of 10 msg per second.\r\n\r\n### **Input**\r\n\r\nThe subflow 'single value' takes in input the `msg.payload`\r\nfrom the processing output. All the messages sent by the processing node have the same structure.\r\n\r\n    \"payload\": {\r\n        \"groupname\": \"Snapshot2\",\r\n        \"variabledata\": [\r\n            {\r\n                \"y\": \"9\",\r\n                \"x\": \"1567509421459\"\r\n            },\r\n            {\r\n                \"y\": \"9\",\r\n                \"x\": \"1567509421459\"\r\n            },\r\n            {\r\n                \"y\": \"9\",\r\n                \"x\": \"1567509421459\"\r\n            }\r\n        ],\r\n        \"variablename\": \"int2\"\r\n      }\r\n    }\r\n\r\n### **Filter on selected variable**\r\nSeveral messages are sent by the processing node for each variable, so the first step of this 'single value' subflow is to filter and keep only messages related to the selected variable.\r\nThe 'filter variable' node will only keep messages with the right `variablename` key.\r\n\r\n### **Extract duplets table**\r\n\r\nThe received message is an Object containing {groupname, variabledata[array], variablename}.  \r\nThe array contains two variables :\r\n - `y` the value \r\n - `x` the time\r\n\r\nA single message contains multiple pairs of values extract at a regular time interval.\r\nThe time interval depends on the acquisition frequency.\r\nWith the 'change' node and the `set` property, the `msg.payload` is set to \r\n`msg.payload.variabledata`, only the data variable array is set into msg.payload.\r\n\r\n    \"payload\": {\r\n        \"variabledata\": [\r\n            {\r\n                \"y\": \"9\",\r\n                \"x\": \"1567509421459\"\r\n            },\r\n            {\r\n                \"y\": \"9\",\r\n                \"x\": \"1567509421459\"\r\n            },\r\n            {\r\n                \"y\": \"9\",\r\n                \"x\": \"1567509421459\"\r\n            }\r\n        ]\r\n    }\r\n\r\n### **Split duplets table**\r\n\r\nThe data variable array is split with a length of one in smaller objects by the 'split' node.\r\nEach new object contains two subvariables : `y` and `x`.\r\n\r\n    \"payload\": {\r\n        \"y\": \"9\",\r\n        \"x\": \"1567509421459\"\r\n    }\r\n\r\n\r\n### **Limit the number of messages**\r\n\r\nThe 'delay' node allows to limit the maximum number of message per second.\r\nIn the 'single value' subflow, one message is extracted per second.\r\n\r\n>_Be careful, a dashboard saturation risk exists if too many messages are received per second._\r\n\r\n### **Extract only y values**\r\n\r\nThe `msg.payload` is set to `msg.payload.y` with the `set` property. \r\nOnly `y` variable is set into msg.payload as single value.\r\n\r\n    \"payload\": { \r\n        \"y\": \"9\" \r\n    }\r\n\r\n### **Output** \r\n\r\nSome widgets such as the gauge and the text node are using the `msg.payload` property.  \r\nThe output node is linked to a gauge that allows to see the evolution \r\nof the `y` variable as a function of time.\r\n\r\n\r\n![subflow_gauge](images/subflow_gauge.png)\r\n\r\n### **Details**\r\n\r\nNote : The debug node allows to see clearly and easily the \r\nmessage at the node output.  \r\n\r\n\r\n> More details on [Node-Red][nr]\r\n[nr]: https://nodered.org/docs/user-guide/editor/workspace/subflows\r\n\r\n\r\n-------\r\n\r\n",
+        "category": "",
+        "in": [
+            {
+                "x": 40,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "3c5ffe0d.9063b2"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 780,
+                "y": 140,
+                "wires": [
+                    {
+                        "id": "66397fd3.d8111",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "varfilter",
+                "type": "str",
+                "value": ""
+            }
+        ],
+        "color": "#DDAA99"
+    },
+    {
+        "id": "3c5ffe0d.9063b2",
+        "type": "switch",
+        "z": "8381c865.236028",
+        "name": "filter variable",
+        "property": "payload.variablename",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "varfilter",
+                "vt": "env"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 170,
+        "y": 60,
+        "wires": [
+            [
+                "4e5ba7a5.14dec8"
+            ]
+        ]
+    },
+    {
+        "id": "4e5ba7a5.14dec8",
+        "type": "change",
+        "z": "8381c865.236028",
+        "name": "keep only table of duplets",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.variabledata",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 60,
+        "wires": [
+            [
+                "42bc6ed.5b20d9"
+            ]
+        ]
+    },
+    {
+        "id": "42bc6ed.5b20d9",
+        "type": "split",
+        "z": "8381c865.236028",
+        "name": "Split a table[1..n] of duplets in n msg of single duplet",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 800,
+        "y": 60,
+        "wires": [
+            [
+                "8b8ddb84.6fb208"
+            ]
+        ]
+    },
+    {
+        "id": "8b8ddb84.6fb208",
+        "type": "delay",
+        "z": "8381c865.236028",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "10",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "x": 200,
+        "y": 140,
+        "wires": [
+            [
+                "66397fd3.d8111"
+            ]
+        ]
+    },
+    {
+        "id": "66397fd3.d8111",
+        "type": "change",
+        "z": "8381c865.236028",
+        "name": "keep only value and delete timestamp",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.y",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 490,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7b9ed63e.2138f8",
+        "type": "tab",
+        "label": "Basic_Flow",
+        "disabled": false,
+        "info": "# Basic flow to start with STM32CubeMonitor."
+    },
+    {
+        "id": "6013fb0b.5b7504",
+        "type": "acquisition out",
+        "z": "7b9ed63e.2138f8",
+        "name": "myProbe_Out",
+        "probeconfig": "b4533abf.5f68e8",
+        "x": 520,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "4a573fb0.4bc99",
+        "type": "acquisition in",
+        "z": "7b9ed63e.2138f8",
+        "name": "myProbe_In",
+        "probeconfig": "b4533abf.5f68e8",
+        "x": 130,
+        "y": 280,
+        "wires": [
+            [
+                "a7c3e070.5a6c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "d59587ff.cd1748",
+        "type": "variables",
+        "z": "7b9ed63e.2138f8",
+        "groupname": "myVariables",
+        "accesspoint": 0,
+        "execonfig": "e5238d56.f1de7",
+        "variablelist": [],
+        "triggerstartmode": "manual",
+        "triggername": "Light.Light_status",
+        "triggerthreshold": "30000",
+        "frequency": "",
+        "frequencyType": "0",
+        "snapshotheader": "",
+        "mode": "direct",
+        "lastImportedTime": 1596883453650,
+        "openStatus": true,
+        "x": 330,
+        "y": 120,
+        "wires": [
+            [
+                "6013fb0b.5b7504"
+            ]
+        ]
+    },
+    {
+        "id": "5fd51c96.2330e4",
+        "type": "ui_button",
+        "z": "7b9ed63e.2138f8",
+        "name": "",
+        "group": "f9c34dde.1e2f4",
+        "order": 1,
+        "width": 5,
+        "height": 1,
+        "passthru": false,
+        "label": "START Acquisition",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "start",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "d59587ff.cd1748"
+            ]
+        ]
+    },
+    {
+        "id": "52eadfe3.2c8cc",
+        "type": "ui_button",
+        "z": "7b9ed63e.2138f8",
+        "name": "",
+        "group": "f9c34dde.1e2f4",
+        "order": 2,
+        "width": 5,
+        "height": 1,
+        "passthru": true,
+        "label": "STOP Acquisition",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "stop",
+        "x": 110,
+        "y": 160,
+        "wires": [
+            [
+                "d59587ff.cd1748"
+            ]
+        ]
+    },
+    {
+        "id": "a7c3e070.5a6c",
+        "type": "processing",
+        "z": "7b9ed63e.2138f8",
+        "groupname": "myVariables",
+        "groupid": "d59587ff.cd1748",
+        "expressions": [],
+        "statistics": [],
+        "logmode": "full",
+        "x": 391,
+        "y": 280,
+        "wires": [
+            [
+                "545e6fb9.01fd7",
+                "bf5e9b7.5fda068"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "545e6fb9.01fd7",
+        "type": "subflow:8381c865.236028",
+        "z": "7b9ed63e.2138f8",
+        "name": "Light_status",
+        "env": [
+            {
+                "name": "varfilter",
+                "value": "Light.Light_status",
+                "type": "str"
+            }
+        ],
+        "x": 730,
+        "y": 200,
+        "wires": [
+            [
+                "d4c65878.99ba38"
+            ]
+        ]
+    },
+    {
+        "id": "bf5e9b7.5fda068",
+        "type": "subflow:8381c865.236028",
+        "z": "7b9ed63e.2138f8",
+        "name": "Light_status",
+        "env": [
+            {
+                "name": "varfilter",
+                "value": "Light_time",
+                "type": "str"
+            }
+        ],
+        "x": 730,
+        "y": 260,
+        "wires": [
+            [
+                "2effe8bc.e18f98"
+            ]
+        ]
+    },
+    {
+        "id": "2effe8bc.e18f98",
+        "type": "ui_gauge",
+        "z": "7b9ed63e.2138f8",
+        "name": "",
+        "group": "f9c34dde.1e2f4",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "gauge",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "40",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 890,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "d4c65878.99ba38",
+        "type": "ui_text",
+        "z": "7b9ed63e.2138f8",
+        "group": "f9c34dde.1e2f4",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "text",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "x": 890,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "b4533abf.5f68e8",
+        "type": "probe",
+        "z": "",
+        "probeid": "7869020119134B364A4C4E00",
+        "probename": "ST-Link v2 (...C4E00)",
+        "protocol": "SWD",
+        "frequency": "1.8 MHz - Default",
+        "probeproperty": "{\"SWD\":[\"4.6 MHz\",\"1.8 MHz - Default\",\"950 kHz\",\"400 kHz\",\"150 kHz\"],\"JTAG\":[\"18 MHz\",\"9 MHz\",\"4.5 MHz\",\"2.25 MHz\",\"1.12 MHz - Default\",\"560 kHz\",\"280 kHz\",\"140 kHz\"]}",
+        "probeversion": "ST Link firmware version V2.J37",
+        "connectionType": "p2p"
+    },
+    {
+        "id": "e5238d56.f1de7",
+        "type": "exe-config",
+        "z": "",
+        "name": "MiniCar",
+        "exefile": "C:\\Users\\ydz\\Desktop\\CODE\\Debug\\Traffic_Signal_Lights.elf",
+        "exefolder": "C:\\Users\\ydz\\Desktop\\CODE\\Debug",
+        "exevariablelist": [
+            {
+                "address": "0x08002200",
+                "name": "AHBPrescTable[0]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x0800220a",
+                "name": "AHBPrescTable[10]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x0800220b",
+                "name": "AHBPrescTable[11]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x0800220c",
+                "name": "AHBPrescTable[12]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x0800220d",
+                "name": "AHBPrescTable[13]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x0800220e",
+                "name": "AHBPrescTable[14]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x0800220f",
+                "name": "AHBPrescTable[15]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002201",
+                "name": "AHBPrescTable[1]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002202",
+                "name": "AHBPrescTable[2]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002203",
+                "name": "AHBPrescTable[3]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002204",
+                "name": "AHBPrescTable[4]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002205",
+                "name": "AHBPrescTable[5]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002206",
+                "name": "AHBPrescTable[6]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002207",
+                "name": "AHBPrescTable[7]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002208",
+                "name": "AHBPrescTable[8]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002209",
+                "name": "AHBPrescTable[9]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002210",
+                "name": "APBPrescTable[0]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002211",
+                "name": "APBPrescTable[1]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002212",
+                "name": "APBPrescTable[2]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002213",
+                "name": "APBPrescTable[3]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002214",
+                "name": "APBPrescTable[4]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002215",
+                "name": "APBPrescTable[5]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002216",
+                "name": "APBPrescTable[6]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x08002217",
+                "name": "APBPrescTable[7]",
+                "type": 1,
+                "checked": false
+            },
+            {
+                "address": "0x200000a0",
+                "name": "htim6.Channel",
+                "type": 2,
+                "checked": false
+            },
+            {
+                "address": "0x200000a4",
+                "name": "htim6.hdma[0]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x200000a8",
+                "name": "htim6.hdma[1]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x200000ac",
+                "name": "htim6.hdma[2]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x200000b0",
+                "name": "htim6.hdma[3]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x200000b4",
+                "name": "htim6.hdma[4]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x200000b8",
+                "name": "htim6.hdma[5]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x200000bc",
+                "name": "htim6.hdma[6]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x2000009c",
+                "name": "htim6.Init.AutoReloadPreload",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000094",
+                "name": "htim6.Init.ClockDivision",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x2000008c",
+                "name": "htim6.Init.CounterMode",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000090",
+                "name": "htim6.Init.Period",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000088",
+                "name": "htim6.Init.Prescaler",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000098",
+                "name": "htim6.Init.RepetitionCounter",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000084",
+                "name": "htim6.Instance",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x200000c0",
+                "name": "htim6.Lock",
+                "type": 2,
+                "checked": false
+            },
+            {
+                "address": "0x200000c1",
+                "name": "htim6.State",
+                "type": 2,
+                "checked": false
+            },
+            {
+                "address": "0x20000060",
+                "name": "htim7.Channel",
+                "type": 2,
+                "checked": false
+            },
+            {
+                "address": "0x20000064",
+                "name": "htim7.hdma[0]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000068",
+                "name": "htim7.hdma[1]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x2000006c",
+                "name": "htim7.hdma[2]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000070",
+                "name": "htim7.hdma[3]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000074",
+                "name": "htim7.hdma[4]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000078",
+                "name": "htim7.hdma[5]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x2000007c",
+                "name": "htim7.hdma[6]",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x2000005c",
+                "name": "htim7.Init.AutoReloadPreload",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x20000054",
+                "name": "htim7.Init.ClockDivision",
+                "type": 5,
+                "checked": false
+            },
+            {
+                "address": "0x2000004c",
+                "name": "htim7.Init.CounterMode",
+                "type": 5
+            },
+            {
+                "address": "0x20000050",
+                "name": "htim7.Init.Period",
+                "type": 5
+            },
+            {
+                "address": "0x20000048",
+                "name": "htim7.Init.Prescaler",
+                "type": 5
+            },
+            {
+                "address": "0x20000058",
+                "name": "htim7.Init.RepetitionCounter",
+                "type": 5
+            },
+            {
+                "address": "0x20000044",
+                "name": "htim7.Instance",
+                "type": 5
+            },
+            {
+                "address": "0x20000080",
+                "name": "htim7.Lock",
+                "type": 2
+            },
+            {
+                "address": "0x20000081",
+                "name": "htim7.State",
+                "type": 2
+            },
+            {
+                "address": "0x20000180",
+                "name": "huart1.ErrorCode",
+                "type": 5
+            },
+            {
+                "address": "0x2000017d",
+                "name": "huart1.gState",
+                "type": 2
+            },
+            {
+                "address": "0x20000178",
+                "name": "huart1.hdmarx",
+                "type": 5
+            },
+            {
+                "address": "0x20000174",
+                "name": "huart1.hdmatx",
+                "type": 5
+            },
+            {
+                "address": "0x20000148",
+                "name": "huart1.Init.BaudRate",
+                "type": 5
+            },
+            {
+                "address": "0x2000015c",
+                "name": "huart1.Init.HwFlowCtl",
+                "type": 5
+            },
+            {
+                "address": "0x20000158",
+                "name": "huart1.Init.Mode",
+                "type": 5
+            },
+            {
+                "address": "0x20000160",
+                "name": "huart1.Init.OverSampling",
+                "type": 5
+            },
+            {
+                "address": "0x20000154",
+                "name": "huart1.Init.Parity",
+                "type": 5
+            },
+            {
+                "address": "0x20000150",
+                "name": "huart1.Init.StopBits",
+                "type": 5
+            },
+            {
+                "address": "0x2000014c",
+                "name": "huart1.Init.WordLength",
+                "type": 5
+            },
+            {
+                "address": "0x20000144",
+                "name": "huart1.Instance",
+                "type": 5
+            },
+            {
+                "address": "0x2000017c",
+                "name": "huart1.Lock",
+                "type": 2
+            },
+            {
+                "address": "0x2000016c",
+                "name": "huart1.pRxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x20000164",
+                "name": "huart1.pTxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x2000017e",
+                "name": "huart1.RxState",
+                "type": 2
+            },
+            {
+                "address": "0x20000172",
+                "name": "huart1.RxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x20000170",
+                "name": "huart1.RxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x2000016a",
+                "name": "huart1.TxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x20000168",
+                "name": "huart1.TxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x20000200",
+                "name": "huart2.ErrorCode",
+                "type": 5
+            },
+            {
+                "address": "0x200001fd",
+                "name": "huart2.gState",
+                "type": 2
+            },
+            {
+                "address": "0x200001f8",
+                "name": "huart2.hdmarx",
+                "type": 5
+            },
+            {
+                "address": "0x200001f4",
+                "name": "huart2.hdmatx",
+                "type": 5
+            },
+            {
+                "address": "0x200001c8",
+                "name": "huart2.Init.BaudRate",
+                "type": 5
+            },
+            {
+                "address": "0x200001dc",
+                "name": "huart2.Init.HwFlowCtl",
+                "type": 5
+            },
+            {
+                "address": "0x200001d8",
+                "name": "huart2.Init.Mode",
+                "type": 5
+            },
+            {
+                "address": "0x200001e0",
+                "name": "huart2.Init.OverSampling",
+                "type": 5
+            },
+            {
+                "address": "0x200001d4",
+                "name": "huart2.Init.Parity",
+                "type": 5
+            },
+            {
+                "address": "0x200001d0",
+                "name": "huart2.Init.StopBits",
+                "type": 5
+            },
+            {
+                "address": "0x200001cc",
+                "name": "huart2.Init.WordLength",
+                "type": 5
+            },
+            {
+                "address": "0x200001c4",
+                "name": "huart2.Instance",
+                "type": 5
+            },
+            {
+                "address": "0x200001fc",
+                "name": "huart2.Lock",
+                "type": 2
+            },
+            {
+                "address": "0x200001ec",
+                "name": "huart2.pRxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x200001e4",
+                "name": "huart2.pTxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x200001fe",
+                "name": "huart2.RxState",
+                "type": 2
+            },
+            {
+                "address": "0x200001f2",
+                "name": "huart2.RxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x200001f0",
+                "name": "huart2.RxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x200001ea",
+                "name": "huart2.TxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x200001e8",
+                "name": "huart2.TxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x20000100",
+                "name": "huart3.ErrorCode",
+                "type": 5
+            },
+            {
+                "address": "0x200000fd",
+                "name": "huart3.gState",
+                "type": 2
+            },
+            {
+                "address": "0x200000f8",
+                "name": "huart3.hdmarx",
+                "type": 5
+            },
+            {
+                "address": "0x200000f4",
+                "name": "huart3.hdmatx",
+                "type": 5
+            },
+            {
+                "address": "0x200000c8",
+                "name": "huart3.Init.BaudRate",
+                "type": 5
+            },
+            {
+                "address": "0x200000dc",
+                "name": "huart3.Init.HwFlowCtl",
+                "type": 5
+            },
+            {
+                "address": "0x200000d8",
+                "name": "huart3.Init.Mode",
+                "type": 5
+            },
+            {
+                "address": "0x200000e0",
+                "name": "huart3.Init.OverSampling",
+                "type": 5
+            },
+            {
+                "address": "0x200000d4",
+                "name": "huart3.Init.Parity",
+                "type": 5
+            },
+            {
+                "address": "0x200000d0",
+                "name": "huart3.Init.StopBits",
+                "type": 5
+            },
+            {
+                "address": "0x200000cc",
+                "name": "huart3.Init.WordLength",
+                "type": 5
+            },
+            {
+                "address": "0x200000c4",
+                "name": "huart3.Instance",
+                "type": 5
+            },
+            {
+                "address": "0x200000fc",
+                "name": "huart3.Lock",
+                "type": 2
+            },
+            {
+                "address": "0x200000ec",
+                "name": "huart3.pRxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x200000e4",
+                "name": "huart3.pTxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x200000fe",
+                "name": "huart3.RxState",
+                "type": 2
+            },
+            {
+                "address": "0x200000f2",
+                "name": "huart3.RxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x200000f0",
+                "name": "huart3.RxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x200000ea",
+                "name": "huart3.TxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x200000e8",
+                "name": "huart3.TxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x200001c0",
+                "name": "huart4.ErrorCode",
+                "type": 5
+            },
+            {
+                "address": "0x200001bd",
+                "name": "huart4.gState",
+                "type": 2
+            },
+            {
+                "address": "0x200001b8",
+                "name": "huart4.hdmarx",
+                "type": 5
+            },
+            {
+                "address": "0x200001b4",
+                "name": "huart4.hdmatx",
+                "type": 5
+            },
+            {
+                "address": "0x20000188",
+                "name": "huart4.Init.BaudRate",
+                "type": 5
+            },
+            {
+                "address": "0x2000019c",
+                "name": "huart4.Init.HwFlowCtl",
+                "type": 5
+            },
+            {
+                "address": "0x20000198",
+                "name": "huart4.Init.Mode",
+                "type": 5
+            },
+            {
+                "address": "0x200001a0",
+                "name": "huart4.Init.OverSampling",
+                "type": 5
+            },
+            {
+                "address": "0x20000194",
+                "name": "huart4.Init.Parity",
+                "type": 5
+            },
+            {
+                "address": "0x20000190",
+                "name": "huart4.Init.StopBits",
+                "type": 5
+            },
+            {
+                "address": "0x2000018c",
+                "name": "huart4.Init.WordLength",
+                "type": 5
+            },
+            {
+                "address": "0x20000184",
+                "name": "huart4.Instance",
+                "type": 5
+            },
+            {
+                "address": "0x200001bc",
+                "name": "huart4.Lock",
+                "type": 2
+            },
+            {
+                "address": "0x200001ac",
+                "name": "huart4.pRxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x200001a4",
+                "name": "huart4.pTxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x200001be",
+                "name": "huart4.RxState",
+                "type": 2
+            },
+            {
+                "address": "0x200001b2",
+                "name": "huart4.RxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x200001b0",
+                "name": "huart4.RxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x200001aa",
+                "name": "huart4.TxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x200001a8",
+                "name": "huart4.TxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x20000140",
+                "name": "huart5.ErrorCode",
+                "type": 5
+            },
+            {
+                "address": "0x2000013d",
+                "name": "huart5.gState",
+                "type": 2
+            },
+            {
+                "address": "0x20000138",
+                "name": "huart5.hdmarx",
+                "type": 5
+            },
+            {
+                "address": "0x20000134",
+                "name": "huart5.hdmatx",
+                "type": 5
+            },
+            {
+                "address": "0x20000108",
+                "name": "huart5.Init.BaudRate",
+                "type": 5
+            },
+            {
+                "address": "0x2000011c",
+                "name": "huart5.Init.HwFlowCtl",
+                "type": 5
+            },
+            {
+                "address": "0x20000118",
+                "name": "huart5.Init.Mode",
+                "type": 5
+            },
+            {
+                "address": "0x20000120",
+                "name": "huart5.Init.OverSampling",
+                "type": 5
+            },
+            {
+                "address": "0x20000114",
+                "name": "huart5.Init.Parity",
+                "type": 5
+            },
+            {
+                "address": "0x20000110",
+                "name": "huart5.Init.StopBits",
+                "type": 5
+            },
+            {
+                "address": "0x2000010c",
+                "name": "huart5.Init.WordLength",
+                "type": 5
+            },
+            {
+                "address": "0x20000104",
+                "name": "huart5.Instance",
+                "type": 5
+            },
+            {
+                "address": "0x2000013c",
+                "name": "huart5.Lock",
+                "type": 2
+            },
+            {
+                "address": "0x2000012c",
+                "name": "huart5.pRxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x20000124",
+                "name": "huart5.pTxBuffPtr",
+                "type": 5
+            },
+            {
+                "address": "0x2000013e",
+                "name": "huart5.RxState",
+                "type": 2
+            },
+            {
+                "address": "0x20000132",
+                "name": "huart5.RxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x20000130",
+                "name": "huart5.RxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x2000012a",
+                "name": "huart5.TxXferCount",
+                "type": 3
+            },
+            {
+                "address": "0x20000128",
+                "name": "huart5.TxXferSize",
+                "type": 3
+            },
+            {
+                "address": "0x2000003f",
+                "name": "Light.Light_Green_time",
+                "type": 1
+            },
+            {
+                "address": "0x2000003d",
+                "name": "Light.Light_Red_time",
+                "type": 1
+            },
+            {
+                "address": "0x20000040",
+                "name": "Light.Light_status",
+                "type": 2,
+                "checked": true
+            },
+            {
+                "address": "0x2000003e",
+                "name": "Light.Light_Yellow_time",
+                "type": 1
+            },
+            {
+                "address": "0x2000002c",
+                "name": "Light.VIN[0]",
+                "type": 1
+            },
+            {
+                "address": "0x20000036",
+                "name": "Light.VIN[10]",
+                "type": 1
+            },
+            {
+                "address": "0x20000037",
+                "name": "Light.VIN[11]",
+                "type": 1
+            },
+            {
+                "address": "0x20000038",
+                "name": "Light.VIN[12]",
+                "type": 1
+            },
+            {
+                "address": "0x20000039",
+                "name": "Light.VIN[13]",
+                "type": 1
+            },
+            {
+                "address": "0x2000003a",
+                "name": "Light.VIN[14]",
+                "type": 1
+            },
+            {
+                "address": "0x2000003b",
+                "name": "Light.VIN[15]",
+                "type": 1
+            },
+            {
+                "address": "0x2000003c",
+                "name": "Light.VIN[16]",
+                "type": 1
+            },
+            {
+                "address": "0x2000002d",
+                "name": "Light.VIN[1]",
+                "type": 1
+            },
+            {
+                "address": "0x2000002e",
+                "name": "Light.VIN[2]",
+                "type": 1
+            },
+            {
+                "address": "0x2000002f",
+                "name": "Light.VIN[3]",
+                "type": 1
+            },
+            {
+                "address": "0x20000030",
+                "name": "Light.VIN[4]",
+                "type": 1
+            },
+            {
+                "address": "0x20000031",
+                "name": "Light.VIN[5]",
+                "type": 1
+            },
+            {
+                "address": "0x20000032",
+                "name": "Light.VIN[6]",
+                "type": 1
+            },
+            {
+                "address": "0x20000033",
+                "name": "Light.VIN[7]",
+                "type": 1
+            },
+            {
+                "address": "0x20000034",
+                "name": "Light.VIN[8]",
+                "type": 1
+            },
+            {
+                "address": "0x20000035",
+                "name": "Light.VIN[9]",
+                "type": 1
+            },
+            {
+                "address": "0x20000028",
+                "name": "Light_time",
+                "type": 1,
+                "checked": true
+            },
+            {
+                "address": "0x20000000",
+                "name": "SystemCoreClock",
+                "type": 5
+            },
+            {
+                "address": "0x20000204",
+                "name": "uwTick",
+                "type": 5
+            },
+            {
+                "address": "0x20000008",
+                "name": "uwTickFreq",
+                "type": 2
+            },
+            {
+                "address": "0x20000004",
+                "name": "uwTickPrio",
+                "type": 5
+            }
+        ],
+        "expand": true,
+        "filename": "Traffic_Signal_Lights.elf",
+        "exeModifiedTime": 1596882581165,
+        "configLastUpdate": 1596882774758
+    },
+    {
+        "id": "f9c34dde.1e2f4",
+        "type": "ui_group",
+        "z": "",
+        "name": "Chart",
+        "tab": "17d09b07.741a55",
+        "order": 1,
+        "disp": true,
+        "width": 15,
+        "collapse": false
+    },
+    {
+        "id": "17d09b07.741a55",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]

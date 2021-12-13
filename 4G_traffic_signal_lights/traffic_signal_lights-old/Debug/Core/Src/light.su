@@ -1,0 +1,2 @@
+light.c:37:6:Light_init	16	static
+light.c:56:6:Light_Data_Transmit	24	static

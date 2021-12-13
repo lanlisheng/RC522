@@ -1,0 +1,116 @@
+Configuration	Traffic_Signal_Lights
+STM32CubeMX 	6.0.0
+Date	08/24/2020
+MCU	STM32F103RCTx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+RCC	Crystal/Ceramic Resonator	RCC_OSC_IN	PD0-OSC_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC_OUT	PD1-OSC_OUT
+RCC	Crystal/Ceramic Resonator	RCC_OSC32_IN	PC14-OSC32_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC32_OUT	PC15-OSC32_OUT
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13
+SYS	TIM7	SYS_VS_tim7	VP_SYS_VS_tim7
+UART4	Asynchronous	UART4_RX	PC11
+UART4	Asynchronous	UART4_TX	PC10
+UART5	Asynchronous	UART5_RX	PD2
+UART5	Asynchronous	UART5_TX	PC12
+USART1	Asynchronous	USART1_RX	PA10
+USART1	Asynchronous	USART1_TX	PA9
+USART2	Asynchronous	USART2_RX	PA3
+USART2	Asynchronous	USART2_TX	PA2
+USART3	Asynchronous	USART3_RX	PB11
+USART3	Asynchronous	USART3_TX	PB10
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+3	PC14-OSC32_IN	RCC_OSC32_IN	
+4	PC15-OSC32_OUT	RCC_OSC32_OUT	
+5	PD0-OSC_IN	RCC_OSC_IN	
+6	PD1-OSC_OUT	RCC_OSC_OUT	
+16	PA2	USART2_TX	Zigbee_TX
+17	PA3	USART2_RX	Zigbee_RX
+24	PC4	GPIO_Output	LED_R
+25	PC5	GPIO_Output	LED_Y
+28	PB2	GPIO_Output	LED_G
+29	PB10	USART3_TX	ESP8266_TX
+30	PB11	USART3_RX	ESP8266_RX
+42	PA9	USART1_TX	
+43	PA10	USART1_RX	
+46	PA13	SYS_JTMS-SWDIO	
+49	PA14	SYS_JTCK-SWCLK	
+51	PC10	UART4_TX	RS485_TX
+52	PC11	UART4_RX	RS485_RX
+53	PC12	UART5_TX	DTU4G_TX
+54	PD2	UART5_RX	DTU4G_RX
+PERIPHERALS	MODES	FUNCTIONS	PINS
+RCC	Crystal/Ceramic Resonator	RCC_OSC_IN	PD0-OSC_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC_OUT	PD1-OSC_OUT
+RCC	Crystal/Ceramic Resonator	RCC_OSC32_IN	PC14-OSC32_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC32_OUT	PC15-OSC32_OUT
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13
+SYS	TIM7	SYS_VS_tim7	VP_SYS_VS_tim7
+UART4	Asynchronous	UART4_RX	PC11
+UART4	Asynchronous	UART4_TX	PC10
+UART5	Asynchronous	UART5_RX	PD2
+UART5	Asynchronous	UART5_TX	PC12
+USART1	Asynchronous	USART1_RX	PA10
+USART1	Asynchronous	USART1_TX	PA9
+USART2	Asynchronous	USART2_RX	PA3
+USART2	Asynchronous	USART2_TX	PA2
+USART3	Asynchronous	USART3_RX	PB11
+USART3	Asynchronous	USART3_TX	PB10
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+3	PC14-OSC32_IN	RCC_OSC32_IN	
+4	PC15-OSC32_OUT	RCC_OSC32_OUT	
+5	PD0-OSC_IN	RCC_OSC_IN	
+6	PD1-OSC_OUT	RCC_OSC_OUT	
+16	PA2	USART2_TX	Zigbee_TX
+17	PA3	USART2_RX	Zigbee_RX
+24	PC4	GPIO_Output	LED_R
+25	PC5	GPIO_Output	LED_Y
+28	PB2	GPIO_Output	LED_G
+29	PB10	USART3_TX	ESP8266_TX
+30	PB11	USART3_RX	ESP8266_RX
+42	PA9	USART1_TX	
+43	PA10	USART1_RX	
+46	PA13	SYS_JTMS-SWDIO	
+49	PA14	SYS_JTCK-SWCLK	
+51	PC10	UART4_TX	RS485_TX
+52	PC11	UART4_RX	RS485_RX
+53	PC12	UART5_TX	DTU4G_TX
+54	PD2	UART5_RX	DTU4G_RX
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : Traffic_Signal_Lights
+Project Folder : D:\Code\Traffic_Signal_Lights
+Toolchain / IDE : STM32CubeIDE
+Firmware Package Name and Version : STM32Cube FW_F1 V1.8.0
+
+
+Code Generation Settings : 
+STM32Cube MCU packages and embedded software packs : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : Yes
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : 
+
+
+
+
+
