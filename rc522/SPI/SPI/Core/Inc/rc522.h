@@ -10,16 +10,10 @@ RC522射频模块外部的接口:
 *4--MISO<----->PA6--输入
 *5--悬空
 *6--GND <----->GND
-*7--RST <----->PF1--复位脚
+*7--RST <----->PB0--复位脚
 *8--VCC <----->VCC
 */
 
-//#define RC522_OUTPUT PAout(7)
-// #define RC522_OUTPUT BIT7
-// #define RC522_INPUT PAin(6)
-// #define RC522_SCLK PA
-// #define RC522_CS PFout(0)
-// #define RC522_RST PFout(1)
 extern uint8_t UID[5], Temp[4];
 extern uint8_t RF_Buffer[18];
 extern uint8_t Password_Buffer[6]; // Mifare One 缺省密码s
@@ -163,7 +157,6 @@ uint8_t RC522_PcdComMF522(uint8_t Command, uint8_t *pIn, uint8_t InLenByte,
 void RC522_PcdAntennaOn(void);
 void RC522_PcdAntennaOff(void);
 
-// uint8_t SPI1_ReadWriteByte(uint8_t TxData);
 void SPI_Read(uint8_t *pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
 void SPI_Write(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
 #endif
