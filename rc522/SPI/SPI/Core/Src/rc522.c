@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-uint8_t UID[5], Temp[4];
-uint8_t RF_Buffer[18];
-uint8_t Password_Buffer[6] = {0xFF, 0xFF, 0xFF,
-                              0xFF, 0xFF, 0xFF}; // Mifare One 缺省密码s
 /*
 函数功能：移植接口--SPI时序读写一个字节
 函数参数：data:要写入的数据
@@ -385,8 +381,7 @@ uint8_t RC522_ReadRawRC(uint8_t Address) {
   } else {
     Error_Handler();
   }
-  //  SPI1_ReadWriteByte(0); //读取RC522返回的数据
-  // RC522_CS = 1;                             //释放片选线(PF0)
+  // RC522_CS = 1;                             //释放片选线
   HAL_GPIO_WritePin(SPI_CS_GPIO_Port, SPI_CS_Pin, GPIO_PIN_SET);
   return ucResult; //返回读到的数据
 }
