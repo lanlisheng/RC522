@@ -1,0 +1,2 @@
+echo.c:7:6:StartModule	8	static
+echo.c:15:5:GetStatus	8	static
